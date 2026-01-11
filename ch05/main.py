@@ -4,6 +4,10 @@ from langchain_core.output_parsers import StrOutputParser
 import streamlit as st
 from dotenv import load_dotenv
 
+
+# streamlit 배포: https://jocoding-study.streamlit.app/
+
+
 load_dotenv()
 
 llm = init_chat_model("gpt-4o-mini", model_provider="openai")
