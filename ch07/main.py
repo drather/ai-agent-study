@@ -53,28 +53,30 @@ if uploaded_file is not None:
 
     db = Chroma.from_documents(texts, embeddings_model)
 
-    llm = ChatOpenAI(temperature=0)
+    st.header("PDF 에게 질문해보세요")
+    question = st.text_input("질문을 입력하세요")
 
-    retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
+    if st.button("질문하기"):
+        llm = ChatOpenAI(temperature=0)
 
+        retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
 
-    client = Client()
+        client = Client()
 
-    # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
-    prompt = client.pull_prompt("rlm/rag-prompt")
+        # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
+        prompt = client.pull_prompt("rlm/rag-prompt")
 
-    # 생성기
-    def format_docs(docs):
-        return "\n\n".join(doc.page_content for doc in docs)
+        # 생성기
+        def format_docs(docs):
+            return "\n\n".join(doc.page_content for doc in docs)
 
-    rag_chain = (
-        {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
+        rag_chain = (
+            {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
+            | prompt
+            | llm
+            | StrOutputParser()
+        )
 
-    # Question
-    result = rag_chain.invoke("아내가 먹고싶어하는 음식이 뭐야?")
-    print(result)
-
+        # Question
+        result = rag_chain.invoke(question)
+        st.write(result)
