@@ -1,5 +1,12 @@
+import sys
+
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import os
 import tempfile
+
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.runnables import RunnablePassthrough
@@ -50,6 +57,9 @@ if uploaded_file is not None:
         # of the models, you can specify the size of the embeddings you want returned.
         dimensions=1024
     )
+
+    import chromadb
+    chromadb.api.ClientAPI.clear_system_cache()
 
     db = Chroma.from_documents(texts, embeddings_model)
 
