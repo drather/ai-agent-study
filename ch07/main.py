@@ -57,26 +57,27 @@ if uploaded_file is not None:
     question = st.text_input("질문을 입력하세요")
 
     if st.button("질문하기"):
-        llm = ChatOpenAI(temperature=0)
+        with st.spinner('Wait for it'):
+            llm = ChatOpenAI(temperature=0)
 
-        retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
+            retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
 
-        client = Client()
+            client = Client()
 
-        # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
-        prompt = client.pull_prompt("rlm/rag-prompt")
+            # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
+            prompt = client.pull_prompt("rlm/rag-prompt")
 
-        # 생성기
-        def format_docs(docs):
-            return "\n\n".join(doc.page_content for doc in docs)
+            # 생성기
+            def format_docs(docs):
+                return "\n\n".join(doc.page_content for doc in docs)
 
-        rag_chain = (
-            {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
-            | prompt
-            | llm
-            | StrOutputParser()
-        )
+            rag_chain = (
+                {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
+                | prompt
+                | llm
+                | StrOutputParser()
+            )
 
-        # Question
-        result = rag_chain.invoke(question)
-        st.write(result)
+            # Question
+            result = rag_chain.invoke(question)
+            st.write(result)
