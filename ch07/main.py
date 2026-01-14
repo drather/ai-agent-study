@@ -27,6 +27,8 @@ load_dotenv()
 st.title("ChatPDF")
 st.write("---")
 
+openai_key = st.text_input("OPEN_AI_API_KEY", type="password")
+
 uploaded_file = st.file_uploader("PDF 파일을 올려주세요" , type=['pdf'])
 st.write("---")
 
@@ -53,9 +55,10 @@ if uploaded_file is not None:
 
     embeddings_model = OpenAIEmbeddings(
         model="text-embedding-3-large",
+        openai_api_key=openai_key,
         # With the 'text-embedding-3' class
         # of the models, you can specify the size of the embeddings you want returned.
-        dimensions=1024
+        # dimensions=1024
     )
 
     import chromadb
