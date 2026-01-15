@@ -22,7 +22,8 @@ from langsmith import Client
 from langchain_core.load import loads
 import streamlit as st
 from dotenv import load_dotenv
-load_dotenv()
+# load_dotenv()
+from streamlit_extras.buy_me_a_coffee import button
 
 st.title("ChatPDF")
 st.write("---")
@@ -31,6 +32,8 @@ openai_key = st.text_input("OPEN_AI_API_KEY", type="password")
 
 uploaded_file = st.file_uploader("PDF 파일을 올려주세요" , type=['pdf'])
 st.write("---")
+
+button(username="drather@naver.com" , floating=True, width=221)
 
 def pdf_to_document(uploaded_file):
     temp_dir = tempfile.TemporaryDirectory()
