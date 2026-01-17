@@ -1,4 +1,9 @@
 import sys
+from typing import Any
+from uuid import UUID
+
+from langchain_core.callbacks import BaseCallbackHandler
+from langchain_core.outputs import GenerationChunk, ChatGenerationChunk
 
 __import__('pysqlite3')
 import sys
@@ -66,6 +71,16 @@ if uploaded_file is not None:
 
     import chromadb
     chromadb.api.ClientAPI.clear_system_cache()
+
+    # 스트리밍 처리할 Handler 생성 필요
+    class StreamHandler(BaseCallbackHandler):
+        def __init__(self, container, initial_text=""):
+            self.container = container
+            self.text = initial_text
+            def on_llm_new_token(self, token: str, **kwargs) -> None:
+                self.text = self.text
+                self.container.markdown(self.text)
+
 
     db = Chroma.from_documents(texts, embeddings_model)
 
