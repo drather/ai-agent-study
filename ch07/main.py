@@ -98,6 +98,9 @@ if uploaded_file is not None:
             # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
             prompt = client.pull_prompt("rlm/rag-prompt")
 
+            chat_box = st.empty()
+            stream_handler = StreamHandler(chat_box)
+
             # 생성기
             def format_docs(docs):
                 return "\n\n".join(doc.page_content for doc in docs)
