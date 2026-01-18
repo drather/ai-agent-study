@@ -50,68 +50,73 @@ def pdf_to_document(uploaded_file):
         return pages
 
 if uploaded_file is not None:
-    pages = pdf_to_document(uploaded_file)
+    # API 키가 입력되었는지 먼저 확인합니다.
+    if not openai_key:
+        st.error("OpenAI API 키를 먼저 입력해주세요.")
+    else:
+        pages = pdf_to_document(uploaded_file)
 
-    text_spliter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=20,
-        length_function=len,
-        is_separator_regex=False
-    )
+        text_spliter = RecursiveCharacterTextSplitter(
+            chunk_size=300,
+            chunk_overlap=20,
+            length_function=len,
+            is_separator_regex=False
+        )
 
-    texts = text_spliter.split_documents(pages)
+        texts = text_spliter.split_documents(pages)
 
-    embeddings_model = OpenAIEmbeddings(
-        model="text-embedding-3-large",
-        openai_api_key=openai_key,
-        # With the 'text-embedding-3' class
-        # of the models, you can specify the size of the embeddings you want returned.
-        # dimensions=1024
-    )
+        embeddings_model = OpenAIEmbeddings(
+            model="text-embedding-3-large",
+            openai_api_key=openai_key,
+            # With the 'text-embedding-3' class
+            # of the models, you can specify the size of the embeddings you want returned.
+            # dimensions=1024
+        )
 
-    import chromadb
-    chromadb.api.ClientAPI.clear_system_cache()
+        import chromadb
+        chromadb.api.ClientAPI.clear_system_cache()
 
-    # 스트리밍 처리할 Handler 생성 필요
-    class StreamHandler(BaseCallbackHandler):
-        def __init__(self, container, initial_text=""):
-            self.container = container
-            self.text = initial_text
+        # 스트리밍 처리할 Handler 생성 필요
+        class StreamHandler(BaseCallbackHandler):
+            def __init__(self, container, initial_text=""):
+                self.container = container
+                self.text = initial_text
             def on_llm_new_token(self, token: str, **kwargs) -> None:
-                self.text = self.text
+                self.text += token
                 self.container.markdown(self.text)
 
 
-    db = Chroma.from_documents(texts, embeddings_model)
+        db = Chroma.from_documents(texts, embeddings_model)
 
-    st.header("PDF 에게 질문해보세요")
-    question = st.text_input("질문을 입력하세요")
+        st.header("PDF 에게 질문해보세요")
+        question = st.text_input("질문을 입력하세요")
 
-    if st.button("질문하기"):
-        with st.spinner('Wait for it'):
-            llm = ChatOpenAI(temperature=0)
+        if st.button("질문하기"):
+            with st.spinner('Wait for it'):
+                llm = ChatOpenAI(temperature=0, openai_api_key=openai_key)
 
-            retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
+                retriever_from_llm = MultiQueryRetriever.from_llm(retriever=db.as_retriever(), llm=llm)
 
-            client = Client()
+                client = Client()
 
-            # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
-            prompt = client.pull_prompt("rlm/rag-prompt")
+                # hub.pull() 메서드가 동작하지 않아, 수정하여 진행
+                prompt = client.pull_prompt("rlm/rag-prompt")
 
-            chat_box = st.empty()
-            stream_handler = StreamHandler(chat_box)
+                chat_box = st.empty()
+                stream_handler = StreamHandler(chat_box)
+                generate_llm = ChatOpenAI(model="gpt-4o-mini", temperature=0, openai_api_key=openai_key, streaming=True, callbacks=[stream_handler])
 
-            # 생성기
-            def format_docs(docs):
-                return "\n\n".join(doc.page_content for doc in docs)
+                # 생성기
+                def format_docs(docs):
+                    return "\n\n".join(doc.page_content for doc in docs)
 
-            rag_chain = (
-                {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
-                | prompt
-                | llm
-                | StrOutputParser()
-            )
+                rag_chain = (
+                    {"context": retriever_from_llm | format_docs, "question": RunnablePassthrough()}
+                    | prompt
+                    | generate_llm
+                    | StrOutputParser()
+                )
 
-            # Question
-            result = rag_chain.invoke(question)
-            st.write(result)
+                # Question
+                # 스트리밍 핸들러가 출력을 처리하므로, invoke 후 별도 출력이 필요 없습니다.
+                rag_chain.invoke(question)
