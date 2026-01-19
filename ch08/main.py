@@ -1,9 +1,23 @@
+import streamlit as st
 from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
 
 client = OpenAI()
 
+st.header("현진건 작가님과의 대화")
+
+# 대화 히스토리 초기화
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+
+# 질문 입력
+prompt = st.chat_input("물어보고 싶은 것을 입력하세요!")
+if prompt:
+    st.write(f"user has sent the follwing prompt: {prompt}")
+    with st.chat_message('user'):
+        st.write(prompt)
+        st.session_state.chat_history.append({'role': 'user', 'content': prompt})
 
 response = client.responses.create(
     model="gpt-4o-mini",
