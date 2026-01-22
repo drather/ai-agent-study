@@ -8,3 +8,10 @@ from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+restaurant_faiss= os.path.join(current_dir, "restaurant-faiss")
+
+loader = TextLoader(f'{current_dir}/restaurant.txt')
+
+documents = loader.load()
