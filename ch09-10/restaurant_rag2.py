@@ -26,7 +26,13 @@ async def main():
 
     result = load_db.similarity_search(query, k=2)
 
-    print(result, "\n")
+    embedding_vector_query = embeddings.embed_query(query)
+    print("query vector: ", embedding_vector_query, "\n")
+
+    docs = await load_db.asimilarity_search_by_vector(embedding_vector_query)
+
+    print(docs[0])
+
 
 
 if __name__ == '__main__':
