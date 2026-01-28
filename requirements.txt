@@ -173,6 +173,7 @@ pydeck==0.9.1
 Pygments==2.19.2
 PyJWT==2.10.1
 pymdown-extensions==10.20
+PyMuPDF==1.26.7
 pyOpenSSL==25.3.0
 pyparsing==3.3.1
 pypdf==6.6.0
@@ -185,6 +186,7 @@ python-json-logger==4.0.0
 pytz==2025.2
 PyYAML==6.0.3
 pyzmq==27.1.0
+rank-bm25==0.2.2
 referencing==0.37.0
 regex==2025.11.3
 requests==2.32.5
