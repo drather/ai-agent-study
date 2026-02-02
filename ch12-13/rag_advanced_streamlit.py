@@ -29,3 +29,20 @@ model_choice = st.selectbox(
     ['gpt-3.5-turbo', 'gpt-4o-mini', 'gpt-4o']
 )
 
+# 파일 업로드
+upploaded_file = st.file_uploader("PDF 파일을 업로드하세요. ", type=["pdf"])
+st.wrtie("---")
+
+# PDF 를 문서로 변환하는 함수
+def pdf_to_document(uploaded_file):
+    temp_dir = tempfile.TemporaryDirectory()
+    temp_filepath = os.path.join(temp_dir.name, uploaded_file.name)
+    with open(temp_filepath, "wb") as f:
+        f.write(uploaded_file.getvalue())
+    loader = PyPDFLoader(temp_filepath)
+    pages = loader.load_and_split()
+    return pages
+
+# 문서를 포매팅
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
