@@ -18,3 +18,14 @@ from langchain_community.docstore.in_memory import InMemoryDocstore
 
 button(username="drather", floating=True, width=221)
 
+st.title("chatPDF with Multiquery + hybridSearc + RagFusion")
+st.write("---")
+st.write("PDF 파일을 업로드하고 내용을 기반으로 질문하세요 ")
+
+openai_key = st.text_input("openai key 를 입력해해주세요", type="password")
+
+model_choice = st.selectbox(
+    ' 사용할 GPT 모델을 선택하세요',
+    ['gpt-3.5-turbo', 'gpt-4o-mini', 'gpt-4o']
+)
+
