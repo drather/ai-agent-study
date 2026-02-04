@@ -15,6 +15,7 @@ from langchain_community.vectorstores import FAISS
 import faiss
 from langchain_community.docstore.in_memory import InMemoryDocstore
 
+from ch07.main import embeddings_model
 
 button(username="drather", floating=True, width=221)
 
@@ -60,3 +61,17 @@ if uploaded_file is not None:
 
     splits = text_splitter.split_documents(pages)
 
+    # 임베딩 및 FAISS 설정
+    embeddings_model = OpenAIEmbeddings(openai_api_key=openai_key)
+
+    embedding_dimension = len(OpenAIEmbeddings(openai_api_key=openai_key).embed_query("hello world"))
+    index = faiss.IndexFlatL2(embedding_dimension)
+
+    vectorstore = FAISS(
+        embedding_function=embeddings_model,
+        index=index,
+        docstore=InMemoryDocstore(),
+        index_to_docstore_id={}
+    )
+
+    vectorstore.add_documents(documents=splits, ids=range(len(splits)))
