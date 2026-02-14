@@ -1,3 +1,4 @@
+import base64
 import os
 from dotenv import load_dotenv
 import chromadb
@@ -101,3 +102,20 @@ def setup_vision_chain():
     # 프롬프트, 모델, 파서 체인을 반환
     return image_prompt | gpt4 | parser
 
+
+def format_prompt_inputs(data, user_query):
+    inputs = {}
+
+    inputs['user_query'] = user_query
+
+    image_path_1 = data['uris'][0][1]
+    image_path_2 = data['uris'][0][2]
+
+    with open(image_path_1, 'rb') as image_file:
+        image_data_1 = image_file.read()
+    inputs['image_data_1'] = base64.b64encode(image_data_1).decode('utf-8')
+
+    with open(image_path_2, 'rb') as image_file:
+        image_data_2 = image_file.read()
+    inputs['image_data_2'] = base64.b64encode(image_data_2).decode('utf-8')
+    return inputs
