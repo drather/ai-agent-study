@@ -1,7 +1,7 @@
 # https://github.com/sw-woo/hanbit-langchain/
 
 import streamlit as st
-from langchain_classic.prompts import PromptTemplate
+from langchain.prompts import PromptTemplate
 
 from langchain_community.llms.ctransformers import CTransformers
 from langchain_ollama.llms import OllamaLLM

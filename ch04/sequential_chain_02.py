@@ -1,8 +1,8 @@
 import os
 
 from dotenv import load_dotenv
-from langchain_classic.chains import LLMChain
-from langchain_classic.chains import SequentialChain
+from langchain.chains import LLMChain
+from langchain.chains import SequentialChain
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough

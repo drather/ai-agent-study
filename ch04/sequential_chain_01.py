@@ -1,5 +1,5 @@
-from langchain_classic.chains import LLMChain
-from langchain_classic.chains import SequentialChain
+from langchain.chains import LLMChain
+from langchain.chains import SequentialChain
 from langchain_openai import ChatOpenAI
 
 from langchain_core.prompts import PromptTemplate
