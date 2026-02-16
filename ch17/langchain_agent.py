@@ -41,3 +41,13 @@ api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
 wiki = WikipediaQueryRun(api_wrapper=api_wrapper)
 
 print(wiki.name)
+
+loader = WebBaseLoader("https://news.naver.com/")
+docs = loader.load()
+
+documents = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=200).split_documents(docs)
+vectordb = FAISS.from_documents(documents, OpenAIEmbeddings())
+retriever = vectordb.as_retriever()
+
+print(retriever)
+
