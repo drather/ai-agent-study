@@ -38,10 +38,12 @@ prompt = hub.pull("hwchase17/openai-functions-agent")
 
 api_wrapper = WikipediaAPIWrapper(top_k_results=1, doc_content_chars_max=200)
 
+# wikipedia 로더
 wiki = WikipediaQueryRun(api_wrapper=api_wrapper)
 
 print(wiki.name)
 
+# 네이버 뉴스 로더
 loader = WebBaseLoader("https://news.naver.com/")
 docs = loader.load()
 
@@ -49,5 +51,13 @@ documents = RecursiveCharacterTextSplitter(chunk_size=3000, chunk_overlap=200).s
 vectordb = FAISS.from_documents(documents, OpenAIEmbeddings())
 retriever = vectordb.as_retriever()
 
-print(retriever)
+# 검생 도구 생성
+retriever_tool = create_retriever_tool( retriever, "naver_news_search", "네이버 뉴스 정보가 저장된 벡터 DB, 당일 기사에 대해 궁금하면 이 툴을 사용하세요")
+
+# arXiv 논문 검색 도구
+arxiv_wrapper = ArxivAPIWrapper(top_k_results=1, doc_content_chars_max=200, load_all_available_meta=False)
+
+arxiv = ArxivQueryRun(api_wrapper=arxiv_wrapper)
+
+print(arxiv.name)
 
