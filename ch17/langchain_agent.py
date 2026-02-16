@@ -61,3 +61,16 @@ arxiv = ArxivQueryRun(api_wrapper=arxiv_wrapper)
 
 print(arxiv.name)
 
+# agent 가 사용할 tool 을 정의하여 tools 에 저장
+tools = [wiki, retriever_tool , arxiv]
+
+# agent llm 모델을 openai 로 정의, tools, prompt 를 입력하여 ㅁgent 완성
+agent = create_openai_tools_agent(llm=openai, tools=tools, prompt=prompt)
+
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True )
+
+agent_result =  agent_executor.invoke({"input": "오늘 부동산 관련 주요 소식을 알려줘"})
+agent_result2 =  agent_executor.invoke({"input": "LLM 최신 논문에 대해 알려줘"})
+
+print(agent_result)
+print(agent_result2)
