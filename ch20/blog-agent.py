@@ -66,6 +66,21 @@ translate_writter = Agent(
     llm=llm
 )
 
+tester = Agent(
+    role="Tester",
+    goal="improve the quality of result",
+    verbose=True,
+    memory=True,
+    backstory=(
+        "1. 파일을 읽어들여, 내용과 형식을 검증합니다 "
+        "2. 반복되는 문장, 부적절한 문법 등이 있는 경우, 문맥에 맞게 교정합니다"
+        "3. 최총적으로 , 인간에게 친화적인 내용으로 교정합니다. "
+    ),
+    allow_delegation=False,
+    llm=llm
+)
+
+
 # 작업 정의
 plan = Task(
     description=(
@@ -111,6 +126,33 @@ translate_task = Task(
     expected_output="주제에 대해 연구원이 작성해준 보고서를 기반으로 한국어 컨텐츠를 작성합니다",
     agent=translate_writter,
     async_execution=False,
-    output_file="translated-blog.md"
+    output_file="translated-blog-origin.md"
 )
+
+test_quality_task = Task(
+    description=(
+        "1. 최종 작성한 파일을 읽어, 게시물의 문구가 어색한 것은 없는지, 중복된 것은 없는지, 내용과 형식을 검증합니다. \n"
+        "2. 내용(부적절한 내용 등) 이나, 형식(동일한 문장 반복, 지나치게 AI 스러움, 오탈자등) 을 수정합니다. \n"
+        "3. 수정한 내용을 파일로 작성하되, 원본 파일이 작성된 언어 그대로 작성합니다. \n"
+    ),
+    expected_output="작성된 파일의 내용과 형식을 확인하고, 부적절한 형식/내용을 맥락에 맞게 수정합니다. ",
+    agent=tester,
+    async_execution=False,
+    output_file="translated-blog-after-test.md"
+)
+
+crew = Crew(
+    agents=[planner, writer, editor, translate_writter, tester],
+    tasks=[plan, write, edit, translate_task, test_quality_task],
+    verbose=True,
+)
+
+inputs = {
+    "topic": "다중 에이전트 시스템 구축을 위한 Langgraph, Autogen 및 CrewAI 의 비교 연구"
+}
+
+# 작업 실행
+result = crew.kickoff(inputs=inputs)
+
+print(result)
 
